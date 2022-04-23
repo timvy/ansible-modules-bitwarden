@@ -154,10 +154,12 @@ class LookupModule(LookupBase):
     def run(self, terms, variables=None, **kwargs):
         bw = Bitwarden(path=kwargs.get('path', 'bw'))
 
-        if not bw.logged_in:
-            raise AnsibleError("Not logged into Bitwarden: please run "
-                               "'bw login', or 'bw unlock' and set the "
-                               "BW_SESSION environment variable first")
+        # # Disabled the check, as the cli says the vault is locked but it really isnt
+        # # Added sync step in tasks to test for vault lock
+        # if not bw.logged_in:
+        #     raise AnsibleError("Not logged into Bitwarden: please run "
+        #                        "'bw login', or 'bw unlock' and set the "
+        #                        "BW_SESSION environment variable first")
 
         field = kwargs.get('field', 'password')
         values = []

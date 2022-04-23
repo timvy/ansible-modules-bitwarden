@@ -1,16 +1,23 @@
 ---
-- name: Test if vault is unlocked
+- name: test if vault is unlocked
   ansible.builtin.command:
     cmd: bw status
   register: bw_status
   delegate_to: localhost
   run_once: true
 
+- name: sync to test if vault is really unlocked
+  ansible.builtin.command:
+    cmd: bw sync
+  register: bw_sync
+  delegate_to: localhost
+  run_once: true
+  when: bw_status.stdout|from_json |json_query('status') != "unlocked"
+
 - name: Assert vault is unlocked
   ansible.builtin.assert:
     that:
-      - bw_status.stdout|from_json |json_query('status') == "unlocked"
+      - bw_status.stdout|from_json |json_query('status') == "unlocked" or
+        bw_sync.stderr == ""
     fail_msg: "Bitwarden vault is locked. Please unlock and run playbook again."
     success_msg: "Bitwarden vault is unlocked, continuing..."
-  delegate_to: localhost
-  run_once: true
